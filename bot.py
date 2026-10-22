@@ -1044,7 +1044,10 @@ async def cmd_start_deep(msg: Message, state: FSMContext):
         await msg.answer(force_join_text(missing), reply_markup=force_join_kb(missing), parse_mode="HTML", disable_web_page_preview=True)
         return
 
-    await send_random_video(msg.bot, msg.chat.id, caption=f"{em(EMOJI_ROCKET, '🚀')} Welcome to SMS Blast Bot!\nOwner: {SUPER_ADMIN_NAME}\nManager: @Titanium_Ansh")
+    try:
+        await send_random_video(msg.bot, msg.chat.id, caption=f"{em(EMOJI_ROCKET, '🚀')} Welcome to SMS Blast Bot!\nOwner: {SUPER_ADMIN_NAME}\nManager: @Titanium_Ansh")
+    except Exception as e:
+        log.warning(f"Video send notice: {e}")
 
     if is_owner(uid, d):
         await msg.answer(owner_panel_text(d), reply_markup=owner_kb(d), parse_mode="HTML")
@@ -1056,9 +1059,10 @@ async def cmd_start_deep(msg: Message, state: FSMContext):
         await msg.answer(f"{em(EMOJI_CROSS, '🚫')} <b>Aapko ban kar diya gaya hai.</b>\nAdmin se contact karein.", parse_mode="HTML")
         return
     if not can_use(uid, d):
-        await msg.answer(f"{em(EMOJI_CROSS, '⛔')} <b>Access nahi hai!</b>\n\nOwner se approval lein. Sahilxalone.t.me ", parse_mode="HTML")
+        await msg.answer(f"{em(EMOJI_CROSS, '⛔')} <b>Access nahi hai!</b>\n\nOwner se approval lein.", parse_mode="HTML")
         return
 
+    # Send persistent bottom menu keyboard and inline panel
     await msg.answer(user_home_text(uid, d), reply_markup=user_kb(), parse_mode="HTML")
 
 @R.message(Command("start"))
@@ -1088,7 +1092,10 @@ async def cmd_start(msg: Message, state: FSMContext):
         await msg.answer(force_join_text(missing), reply_markup=force_join_kb(missing), parse_mode="HTML", disable_web_page_preview=True)
         return
 
-    await send_random_video(msg.bot, msg.chat.id, caption=f"{em(EMOJI_ROCKET, '🚀')} Welcome to SMS Blast Bot!\nOwner: {SUPER_ADMIN_NAME}")
+    try:
+        await send_random_video(msg.bot, msg.chat.id, caption=f"{em(EMOJI_ROCKET, '🚀')} Welcome to SMS Blast Bot!\nOwner: {SUPER_ADMIN_NAME}")
+    except Exception as e:
+        log.warning(f"Video send notice: {e}")
 
     if is_owner(uid, d):
         await msg.answer(owner_panel_text(d), reply_markup=owner_kb(d), parse_mode="HTML")
@@ -1103,6 +1110,7 @@ async def cmd_start(msg: Message, state: FSMContext):
         await msg.answer(f"{em(EMOJI_CROSS, '⛔')} <b>Access nahi hai!</b>\n\nOwner se approval lein.", parse_mode="HTML")
         return
 
+    # Send persistent bottom menu keyboard and inline panel
     await msg.answer(user_home_text(uid, d), reply_markup=user_kb(), parse_mode="HTML")
 
 @R.callback_query(F.data == "fj:check")
