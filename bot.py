@@ -46,7 +46,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ----------------- CONFIGURATION -----------------
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8613221309:AAHkdjfnEk7Br_w-IMqh9ai4KZJuFSlZWoM")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8446736192:AAHCUOi7L9VCZAGTkAfP2dfEPZFal6w4yZU")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "8710308658"))
 DB_PATH = os.getenv("DB_PATH", "bot.db")
 PORT = int(os.getenv("PORT", "8080"))  # For Render port binding
