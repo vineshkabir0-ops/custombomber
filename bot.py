@@ -3738,14 +3738,22 @@ async def noop(cq: CallbackQuery):
     await cq.answer()
 
 async def main():
+    # 1. Immediately bind web server port so Render detects the port instantly (< 1s)
+    try:
+        await start_web_server()
+    except Exception as e:
+        log.warning(f"Web server startup error: {e}")
+
     bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_router(R)
-    me = await bot.get_me()
-    log.info(f"@{me.username} — SMS Blast Bot {_VERSION} started!")
 
-    # Start web server for Render health checks and port binding
-    asyncio.create_task(start_web_server())
+    try:
+        me = await bot.get_me()
+        log.info(f"@{me.username} — SMS Blast Bot {_VERSION} started!")
+    except Exception as e:
+        log.error(f"Failed to fetch bot info: {e}")
+        me = None
 
     scanner_task = asyncio.create_task(background_firebase_scanner(bot))
     log.info("Background scanner task created")
@@ -3784,7 +3792,7 @@ async def main():
 
     asyncio.create_task(background_backup_task())
 
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), drop_pending_updates=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
