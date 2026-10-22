@@ -4,6 +4,7 @@ from copy import deepcopy
 from collections import defaultdict
 
 import aiohttp
+from aiohttp import web
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.types import (
     Message, CallbackQuery,
@@ -91,6 +92,24 @@ SUPER_ADMINS = [8710308658]
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8446736192:AAHCUOi7L9VCZAGTkAfP2dfEPZFal6w4yZU")
 LOG_CHANNEL_ID = -1003946288718
+PORT = int(os.getenv("PORT", "10000"))
+
+async def start_web_server():
+    """Starts a minimal HTTP server to satisfy Render's port-binding requirement."""
+    async def health_check(request):
+        return web.Response(text="Bot is running healthy!", status=200)
+
+    try:
+        app = web.Application()
+        app.router.add_get("/", health_check)
+        app.router.add_get("/health", health_check)
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, "0.0.0.0", PORT)
+        await site.start()
+        log.info(f"Render Web Server started on port {PORT}")
+    except Exception as e:
+        log.warning(f"Web server notice: {e}")
 
 _DATA_FILE = "blast_data.json"
 _VERSION = "v3.2-PREMIUM"
@@ -3724,6 +3743,9 @@ async def main():
     dp.include_router(R)
     me = await bot.get_me()
     log.info(f"@{me.username} — SMS Blast Bot {_VERSION} started!")
+
+    # Start web server for Render health checks and port binding
+    asyncio.create_task(start_web_server())
 
     scanner_task = asyncio.create_task(background_firebase_scanner(bot))
     log.info("Background scanner task created")
