@@ -948,8 +948,8 @@ def admin_kb(d: dict) -> InlineKeyboardMarkup:
         [btn("ʀᴇғʀᴇsʜ", "admin:refresh", EMOJI_GEAR, "🔄")],
     ])
 
-def user_kb() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[
+def user_kb(uid: int = None, d: dict = None) -> InlineKeyboardMarkup:
+    rows = [
         [btn("sᴇɴᴅ sᴍs", "user:send", EMOJI_ROCKET, "📤")],
         [btn("📹 ᴠɪᴅᴇᴏs", "user:random_video", EMOJI_VIDEO, "📹"), btn("ᴄʀᴇᴅɪᴛs", "user:credits", EMOJI_MONEY, "💳")],
         [btn("ʀᴇᴅᴇᴇᴍ", "user:redeem", EMOJI_GIFT, "🎁"), btn("ʀᴇғᴇʀ", "user:refer", EMOJI_STAR, "👥")],
@@ -957,7 +957,11 @@ def user_kb() -> InlineKeyboardMarkup:
         [btn("ʙᴜʏ ᴄʀᴇᴅɪᴛs", "user:pricing", EMOJI_MONEY, "💰")],
         [btn("ᴛʀᴀɴsғᴇʀ ᴄʀᴇᴅɪᴛs", "user:transfer", EMOJI_MONEY, "💸")],
         [btn("ɪɴғᴏ", "user:info", EMOJI_GEAR, "ℹ️")],
-    ])
+    ]
+    if uid and d and (is_owner(uid, d) or is_admin(uid, d)):
+        panel_cb = "owner:home" if is_owner(uid, d) else "admin:home"
+        rows.append([btn("👑 ᴏᴡɴᴇʀ / ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ", panel_cb, EMOJI_CROWN, "👑")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 def videos_menu_kb(d: dict) -> InlineKeyboardMarkup:
     videos = d.get("videos", [])
