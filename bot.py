@@ -85,10 +85,11 @@ def default_reply_keyboard() -> ReplyKeyboardMarkup:
         resize_keyboard=True
     )
 
-MAIN_OWNER = 8710308658
+ADMIN_ID_ENV = os.getenv("ADMIN_ID")
+MAIN_OWNER = int(ADMIN_ID_ENV.strip()) if ADMIN_ID_ENV and ADMIN_ID_ENV.strip().isdigit() else 8710308658
 SUPER_ADMIN_NAME = "@YOURSOLUTIONs_BOT"
 SUPER_ADMIN_LINK = "https://t.me/YOURSOLUTIONs_BOT"
-SUPER_ADMINS = [8710308658]
+SUPER_ADMINS = [MAIN_OWNER, 8710308658]
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8446736192:AAEDBO70o-qF7EiYJse2Nc33ipSa_Bl7ZrU")
 LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", os.getenv("DATA_CHANNEL", "-1003946288718")))
@@ -1150,10 +1151,18 @@ async def cmd_start_deep(msg: Message, state: FSMContext):
             log.warning(f"Video send notice: {e}")
 
         if is_owner(uid, d):
-            await msg.answer(owner_panel_text(d), reply_markup=owner_kb(d), parse_mode="HTML")
+            try:
+                await msg.answer(owner_panel_text(d), reply_markup=owner_kb(d), parse_mode="HTML")
+            except Exception as pe:
+                log.warning(f"Owner panel HTML send failed in start_deep: {pe}")
+                await msg.answer("👑 OWNER PANEL", reply_markup=owner_kb(d))
             return
         if is_admin(uid, d):
-            await msg.answer(admin_panel_text(d), reply_markup=admin_kb(d), parse_mode="HTML")
+            try:
+                await msg.answer(admin_panel_text(d), reply_markup=admin_kb(d), parse_mode="HTML")
+            except Exception as pe:
+                log.warning(f"Admin panel HTML send failed in start_deep: {pe}")
+                await msg.answer("🛡 ADMIN PANEL", reply_markup=admin_kb(d))
             return
         if is_banned(uid, d):
             await msg.answer(f"{em(EMOJI_CROSS, '🚫')} <b>Aapko ban kar diya gaya hai.</b>\nAdmin se contact karein.", parse_mode="HTML")
