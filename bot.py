@@ -90,7 +90,7 @@ SUPER_ADMIN_NAME = "@YOURSOLUTIONs_BOT"
 SUPER_ADMIN_LINK = "https://t.me/YOURSOLUTIONs_BOT"
 SUPER_ADMINS = [8710308658]
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8446736192:AAHCUOi7L9VCZAGTkAfP2dfEPZFal6w4yZU")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8446736192:AAEDBO70o-qF7EiYJse2Nc33ipSa_Bl7ZrU")
 LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", os.getenv("DATA_CHANNEL", "-1003946288718")))
 PORT = int(os.getenv("PORT", "10000"))
 
@@ -340,9 +340,22 @@ async def restore_data_from_telegram(bot: Bot):
         tmp_path = _DATA_FILE + ".downloaded"
         await bot.download_file(file.file_path, destination=tmp_path)
 
-        # Validate valid json
-        with open(tmp_path, "r", encoding="utf-8") as f:
-            json.load(f)
+        # Validate and read json with encoding fallback
+        data_loaded = None
+        for enc in ("utf-8", "utf-8-sig", "latin-1"):
+            try:
+                with open(tmp_path, "r", encoding=enc) as f:
+                    data_loaded = json.load(f)
+                    break
+            except Exception:
+                continue
+
+        if not isinstance(data_loaded, dict):
+            log.warning("Pinned document in Telegram channel is not a valid JSON database dictionary. Skipping restore.")
+            if os.path.exists(tmp_path):
+                try: os.remove(tmp_path)
+                except: pass
+            return
 
         if os.path.exists(_DATA_FILE):
             try:
