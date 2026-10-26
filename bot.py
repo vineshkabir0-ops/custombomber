@@ -1181,11 +1181,17 @@ async def cmd_admin_direct(msg: Message, state: FSMContext):
     uid = msg.from_user.id
     d = load()
     if is_owner(uid, d):
-        await msg.answer(owner_panel_text(d), reply_markup=owner_kb(d), parse_mode="HTML")
+        try:
+            await msg.answer(owner_panel_text(d), reply_markup=owner_kb(d), parse_mode="HTML")
+        except Exception:
+            await msg.answer("👑 OWNER PANEL", reply_markup=owner_kb(d))
     elif is_admin(uid, d):
-        await msg.answer(admin_panel_text(d), reply_markup=admin_kb(d), parse_mode="HTML")
+        try:
+            await msg.answer(admin_panel_text(d), reply_markup=admin_kb(d), parse_mode="HTML")
+        except Exception:
+            await msg.answer("🛡 ADMIN PANEL", reply_markup=admin_kb(d))
     else:
-        await msg.answer(f"{em(EMOJI_CROSS, '🚫')} Access Denied! Sirf Admin/Owner ke liye hai.", parse_mode="HTML")
+        await msg.answer("🚫 Access Denied! Sirf Admin/Owner ke liye hai.")
 
 @R.message(Command("start"))
 async def cmd_start(msg: Message, state: FSMContext):
@@ -1221,10 +1227,18 @@ async def cmd_start(msg: Message, state: FSMContext):
             log.warning(f"Video send notice: {e}")
 
         if is_owner(uid, d):
-            await msg.answer(owner_panel_text(d), reply_markup=owner_kb(d), parse_mode="HTML")
+            try:
+                await msg.answer(owner_panel_text(d), reply_markup=owner_kb(d), parse_mode="HTML")
+            except Exception as pe:
+                log.warning(f"Owner panel HTML send failed: {pe}")
+                await msg.answer("👑 OWNER PANEL", reply_markup=owner_kb(d))
             return
         if is_admin(uid, d):
-            await msg.answer(admin_panel_text(d), reply_markup=admin_kb(d), parse_mode="HTML")
+            try:
+                await msg.answer(admin_panel_text(d), reply_markup=admin_kb(d), parse_mode="HTML")
+            except Exception as pe:
+                log.warning(f"Admin panel HTML send failed: {pe}")
+                await msg.answer("🛡 ADMIN PANEL", reply_markup=admin_kb(d))
             return
         if is_banned(uid, d):
             await msg.answer(f"{em(EMOJI_CROSS, '🚫')} <b>Aapko ban kar diya gaya hai.</b>\nAdmin se contact karein.", parse_mode="HTML")
