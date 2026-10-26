@@ -79,8 +79,8 @@ def style_btn(text: str, style: str = "primary", request_contact: bool = False, 
 def default_reply_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
-            [style_btn("🚀 Start Blast", style="success"), style_btn("📹 Videos", style="primary")],
-            [style_btn("💰 Credits", style="primary"), style_btn("🛑 Stop Blast", style="danger")]
+            [style_btn("🚀 Start Blast", style="primary"), style_btn("📹 Videos", style="primary")],
+            [style_btn("💰 Credits", style="primary"), style_btn("🛑 Stop Blast", style="primary")]
         ],
         resize_keyboard=True
     )
