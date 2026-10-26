@@ -137,11 +137,41 @@ async def send_fire_effect_private(bot: Bot, chat_id: int):
     except Exception as e:
         log.warning(f"Fire Effect Trigger Failed: {e}")
 
+_LOG_QUEUE = asyncio.Queue()
+_LOG_WORKER_STARTED = False
+
+async def _log_channel_worker(bot: Bot):
+    while True:
+        text = await _LOG_QUEUE.get()
+        while True:
+            try:
+                await bot.send_message(LOG_CHANNEL_ID, text, parse_mode="HTML")
+                await asyncio.sleep(1.2)  # safe gap between channel messages to prevent Telegram FloodWait
+                break
+            except Exception as e:
+                err_str = str(e).lower()
+                if "flood" in err_str or "retry after" in err_str:
+                    wait_time = 5
+                    try:
+                        import re
+                        m = re.search(r"retry after (\d+)", err_str)
+                        if m:
+                            wait_time = int(m.group(1)) + 1
+                    except Exception:
+                        pass
+                    log.warning(f"Log channel hit flood control. Sleeping for {wait_time}s...")
+                    await asyncio.sleep(wait_time)
+                else:
+                    log.error(f"Failed to send channel log: {e}")
+                    break
+        _LOG_QUEUE.task_done()
+
 async def send_channel_log(bot: Bot, text: str):
-    try:
-        await bot.send_message(LOG_CHANNEL_ID, text, parse_mode="HTML")
-    except Exception as e:
-        log.error(f"Failed to send channel log to {LOG_CHANNEL_ID}: {e}")
+    global _LOG_WORKER_STARTED
+    if not _LOG_WORKER_STARTED:
+        _LOG_WORKER_STARTED = True
+        asyncio.create_task(_log_channel_worker(bot))
+    await _LOG_QUEUE.put(text)
 
 GLOBAL_BOT = None
 
