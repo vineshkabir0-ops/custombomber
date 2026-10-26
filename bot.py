@@ -1171,6 +1171,18 @@ async def cmd_start_deep(msg: Message, state: FSMContext):
         except Exception:
             pass
 
+@R.message(Command(commands=["admin", "owner", "panel"]))
+async def cmd_admin_direct(msg: Message, state: FSMContext):
+    await state.clear()
+    uid = msg.from_user.id
+    d = load()
+    if is_owner(uid, d):
+        await msg.answer(owner_panel_text(d), reply_markup=owner_kb(d), parse_mode="HTML")
+    elif is_admin(uid, d):
+        await msg.answer(admin_panel_text(d), reply_markup=admin_kb(d), parse_mode="HTML")
+    else:
+        await msg.answer(f"{em(EMOJI_CROSS, '🚫')} Access Denied! Sirf Admin/Owner ke liye hai.", parse_mode="HTML")
+
 @R.message(Command("start"))
 async def cmd_start(msg: Message, state: FSMContext):
     try:
