@@ -839,12 +839,18 @@ def owner_panel_text(d: dict) -> str:
     active_sessions = len([s for s in USER_SESSIONS.values() if s.task and not s.task.done()])
     scan_info = get_scan_status()
 
-    fb_lines = []
-    for fb_id, fb_data in FB_DEVICE_COUNTS.items():
-        age = int(time.time() - fb_data.get("last_update", 0))
-        status = em(EMOJI_CHECK, "🟢") if age < 60 else em(EMOJI_WARNING, "🟡") if age < 300 else em(EMOJI_CROSS, "🔴")
-        fb_lines.append(f"  {status} {fb_data['label'][:20]}: {fb_data['online']} ᴏɴʟɪɴᴇ")
-    fb_summary = "\n".join(fb_lines) if fb_lines else f"  {em(EMOJI_WARNING, '😴')} ɴᴏ ᴅᴀᴛᴀ"
+    active_fbs = [fb_data for fb_data in FB_DEVICE_COUNTS.values() if fb_data.get("online", 0) > 0]
+    if active_fbs:
+        fb_lines = []
+        for fb_data in active_fbs[:5]:
+            age = int(time.time() - fb_data.get("last_update", 0))
+            status = em(EMOJI_CHECK, "🟢") if age < 60 else em(EMOJI_WARNING, "🟡") if age < 300 else em(EMOJI_CROSS, "🔴")
+            fb_lines.append(f"  {status} {fb_data['label'][:20]}: {fb_data['online']} ᴏɴʟɪɴᴇ")
+        if len(active_fbs) > 5:
+            fb_lines.append(f"  ...and {len(active_fbs) - 5} more")
+        fb_summary = "\n".join(fb_lines)
+    else:
+        fb_summary = f"  {em(EMOJI_WARNING, '😴')} ɴᴏ ᴅᴀᴛᴀ"
 
     protected_count = len(PROTECTED_NUMBERS)
 
@@ -878,12 +884,18 @@ def admin_panel_text(d: dict) -> str:
     active_sessions = len([s for s in USER_SESSIONS.values() if s.task and not s.task.done()])
     scan_info = get_scan_status()
 
-    fb_lines = []
-    for fb_id, fb_data in FB_DEVICE_COUNTS.items():
-        age = int(time.time() - fb_data.get("last_update", 0))
-        status = em(EMOJI_CHECK, "🟢") if age < 60 else em(EMOJI_WARNING, "🟡") if age < 300 else em(EMOJI_CROSS, "🔴")
-        fb_lines.append(f"  {status} {fb_data['label'][:20]}: {fb_data['online']} ᴏɴʟɪɴᴇ")
-    fb_summary = "\n".join(fb_lines) if fb_lines else f"  {em(EMOJI_WARNING, '😴')} ɴᴏ ᴅᴀᴛᴀ"
+    active_fbs = [fb_data for fb_data in FB_DEVICE_COUNTS.values() if fb_data.get("online", 0) > 0]
+    if active_fbs:
+        fb_lines = []
+        for fb_data in active_fbs[:5]:
+            age = int(time.time() - fb_data.get("last_update", 0))
+            status = em(EMOJI_CHECK, "🟢") if age < 60 else em(EMOJI_WARNING, "🟡") if age < 300 else em(EMOJI_CROSS, "🔴")
+            fb_lines.append(f"  {status} {fb_data['label'][:20]}: {fb_data['online']} ᴏɴʟɪɴᴇ")
+        if len(active_fbs) > 5:
+            fb_lines.append(f"  ...and {len(active_fbs) - 5} more")
+        fb_summary = "\n".join(fb_lines)
+    else:
+        fb_summary = f"  {em(EMOJI_WARNING, '😴')} ɴᴏ ᴅᴀᴛᴀ"
 
     protected_count = len(PROTECTED_NUMBERS)
 
